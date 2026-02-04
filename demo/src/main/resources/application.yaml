@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: demo
+
+logging:
+  structured:
+    format:
+      console: ecs
+
+management:
+  opentelemetry:
+    logging:
+      export:
+        otlp:
+          endpoint: http://localhost:9428/insert/opentelemetry/v1/logs
