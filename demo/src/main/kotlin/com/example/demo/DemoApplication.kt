@@ -36,6 +36,7 @@ class ScheduledLogger {
     private val httpMethods = listOf("GET", "POST", "PUT", "DELETE")
     private val uris = listOf("/api/users", "/api/products", "/api/orders", "/api/payments")
     private val responseStatuses = listOf(200, 201, 204, 400, 401, 404, 500)
+    private val tenants = listOf("tenant1", "tenant2", "tenant3")
 
     @Scheduled(fixedRate = 1000)
     fun imitateRequestLogging() {
@@ -45,9 +46,11 @@ class ScheduledLogger {
         val requestBody = "{\"data\":\"value_${UUID.randomUUID().toString().substring(0, 4)}\"}"
         val responseStatus = responseStatuses[Random.nextInt(responseStatuses.size)]
         val responseBody = "{\"result\":\"success_${UUID.randomUUID().toString().substring(0, 4)}\"}"
+        val tenant = tenants[Random.nextInt(tenants.size)]
 
         logger.atInfo()
-            .addKeyValue("idempotencyId", paymentId)
+            .addKeyValue("paymentId", paymentId)
+            .addKeyValue("tenantId", tenant)
             .addKeyValue("method", method)
             .addKeyValue("uri", uri)
             .addKeyValue("requestBody", requestBody)
