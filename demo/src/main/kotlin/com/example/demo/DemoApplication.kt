@@ -47,16 +47,16 @@ class ScheduledLogger {
         val responseStatus = responseStatuses[Random.nextInt(responseStatuses.size)]
         val responseBody = "{\"result\":\"success_${UUID.randomUUID().toString().substring(0, 4)}\"}"
         val tenant = tenants[Random.nextInt(tenants.size)]
+        val time = Random.nextInt(1000)
 
         logger.atInfo()
             .addKeyValue("paymentId", paymentId)
             .addKeyValue("tenantId", tenant)
-            .addKeyValue("method", method)
-            .addKeyValue("uri", uri)
-            .addKeyValue("requestBody", requestBody)
-            .addKeyValue("responseBody", responseBody)
-            .addKeyValue("responseStatus", responseStatus).log("Processed request")
-
-        MDC.clear()
+            .addKeyValue("request.method", method)
+            .addKeyValue("request.uri", uri)
+            .addKeyValue("request.body", requestBody)
+            .addKeyValue("response.body", responseBody)
+            .addKeyValue("response.status", responseStatus)
+            .log("[$method] $uri -> $responseStatus] $time ms")
     }
 }

@@ -2,11 +2,6 @@ spring:
   application:
     name: demo
 
-logging:
-  structured:
-    format:
-      console: ecs
-
 management:
   opentelemetry:
     logging:
