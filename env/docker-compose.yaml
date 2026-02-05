@@ -1,7 +1,7 @@
 services:
   victoria-logs:
     image: docker.io/victoriametrics/victoria-logs:v1.44.0
-    container_name: victoria-logs
+    container_name: victorialogs
     ports:
       - "9428:9428"
     volumes:
@@ -11,6 +11,17 @@ services:
     stdin_open: true
     tty: true
     restart: always
+    networks:
+      - test-network
+
+  victoria-metrics:
+    image: victoriametrics/victoria-metrics:v1.134.0
+    container_name: vm_single_node
+    ports:
+      - "8428:8428"
+    restart: unless-stopped
+    networks:
+      - test-network
 
   grafana:
     image: grafana/grafana:11.5.2
@@ -25,5 +36,14 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_INSTALL_PLUGINS=victoriametrics-logs-datasource
     depends_on:
       - victoria-logs
+      - victoria-metrics
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge
+    name: test-network
