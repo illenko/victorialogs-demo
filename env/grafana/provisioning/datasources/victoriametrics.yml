@@ -6,4 +6,4 @@ datasources:
     access: proxy
     url: http://vm_single_node:8428
     uid: prometheus
-    isDefault: true
+    isDefault: false

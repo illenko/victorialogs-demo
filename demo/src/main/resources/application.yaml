@@ -3,6 +3,10 @@ spring:
     name: demo
 
 management:
+  otlp:
+    metrics:
+      export:
+        url: http://localhost:8428/opentelemetry/v1/metrics
   opentelemetry:
     logging:
       export:

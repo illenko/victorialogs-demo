@@ -38,7 +38,7 @@ class ScheduledLogger {
     private val responseStatuses = listOf(200, 201, 204, 400, 401, 404, 500)
     private val tenants = listOf("tenant1", "tenant2", "tenant3")
 
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 100)
     fun imitateRequestLogging() {
         val paymentId = UUID.randomUUID().toString()
         val method = httpMethods[Random.nextInt(httpMethods.size)]

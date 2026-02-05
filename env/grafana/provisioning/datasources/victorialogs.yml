@@ -5,6 +5,8 @@ datasources:
     type: victoriametrics-logs-datasource
     access: proxy
     url: http://victorialogs:9428
+    isDefault: true
+    uid: victorialogs
     jsonData:
       # Multitenancy settings, see https://docs.victoriametrics.com/victorialogs/#multitenancy
       # to use the multitenancy, uncomment lines below: AccountID and ProjectID
