@@ -3,7 +3,6 @@ package com.example.demo
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -32,7 +31,9 @@ fun main(args: Array<String>) {
 @Component
 class ScheduledLogger {
 
-    private val logger = LoggerFactory.getLogger(javaClass)
+    private val serviceLogger = LoggerFactory.getLogger("api-gateway")
+    private val interactionsLogger = LoggerFactory.getLogger("interactions")
+
     private val httpMethods = listOf("GET", "POST", "PUT", "DELETE")
     private val uris = listOf("/api/users", "/api/products", "/api/orders", "/api/payments")
     private val responseStatuses = listOf(200, 201, 204, 400, 401, 404, 500)
@@ -49,7 +50,9 @@ class ScheduledLogger {
         val tenant = tenants[Random.nextInt(tenants.size)]
         val time = Random.nextInt(1000)
 
-        logger.atInfo()
+
+        serviceLogger.info("[$method] $uri -> $responseStatus] $time ms")
+        interactionsLogger.atInfo()
             .addKeyValue("paymentId", paymentId)
             .addKeyValue("tenantId", tenant)
             .addKeyValue("request.method", method)

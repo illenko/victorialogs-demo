@@ -6,8 +6,11 @@
         <captureKeyValuePairAttributes>true</captureKeyValuePairAttributes>
     </appender>
 
+    <logger name="interactions" level="INFO" additivity="true">
+        <appender-ref ref="OTEL"/>
+    </logger>
+
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="OTEL"/>
     </root>
 </configuration>
