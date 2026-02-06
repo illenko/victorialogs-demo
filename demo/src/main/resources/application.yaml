@@ -3,10 +3,17 @@ spring:
     name: demo
 
 management:
+  metrics:
+    distribution:
+      percentiles:
+        http.server.requests: 0.5, 0.9, 0.95, 0.99
+      percentiles-histogram:
+        http.server.requests: true
   otlp:
     metrics:
       export:
         url: http://localhost:8428/opentelemetry/v1/metrics
+        step: 1s
   opentelemetry:
     logging:
       export:
