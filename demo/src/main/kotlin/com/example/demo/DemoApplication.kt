@@ -144,6 +144,7 @@ class ScheduledLogger(private val restClient: RestClient) {
             .addKeyValue("requestId", requestId)
             .addKeyValue("tenantId", tenantId)
             .addKeyValue("request.method", action.method)
+            .addKeyValue("request.url", action.uri)
             .addKeyValue("request.uri", uri)
             .addKeyValue("request.body", requestBody?.toString() ?: "")
             .addKeyValue("response.body", responseBody)
