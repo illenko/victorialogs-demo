@@ -19,6 +19,10 @@ services:
     container_name: vm_single_node
     ports:
       - "8428:8428"
+    volumes:
+      - ./victoria-metrics-data:/victoria-metrics-data
+    command:
+      - "-storageDataPath=victoria-metrics-data"
     restart: unless-stopped
     networks:
       - test-network
@@ -47,10 +51,11 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_INSTALL_PLUGINS=victoriametrics-logs-datasource
+      - GF_INSTALL_PLUGINS=victoriametrics-logs-datasource,victoriametrics-metrics-datasource
     depends_on:
       - victoria-logs
       - victoria-metrics
+      - victoria-traces
     networks:
       - test-network
 

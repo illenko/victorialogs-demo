@@ -1,6 +1,6 @@
-# VictoriaMetrics & VictoriaLogs Demo
+# VictoriaMetrics Observability Demo
 
-A demo project showcasing how to use [VictoriaMetrics](https://victoriametrics.com/) and [VictoriaLogs](https://docs.victoriametrics.com/victorialogs/) with a Spring Boot application, leveraging their OpenTelemetry-compatible receivers for metrics and log ingestion.
+A demo project showcasing how to use the full [VictoriaMetrics](https://victoriametrics.com/) stack — **VictoriaMetrics**, **VictoriaLogs**, and **VictoriaTraces** — with a Spring Boot application, leveraging their OpenTelemetry-compatible receivers for metrics, log, and trace ingestion.
 
 ## Overview
 
@@ -9,30 +9,31 @@ The project consists of:
 - **Spring Boot application** (Kotlin) that simulates a payments API with synthetic traffic generation
 - **VictoriaMetrics** — receives application metrics via the OTLP HTTP endpoint
 - **VictoriaLogs** — receives structured application logs via the OTLP HTTP endpoint
-- **Grafana** — pre-configured dashboards and datasources for visualizing both metrics and logs
+- **VictoriaTraces** — receives distributed traces via the OTLP HTTP endpoint
+- **Grafana** — pre-configured dashboard and datasources for visualizing metrics, logs, and traces
 
 ```
 ┌──────────────────────┐
 │   Spring Boot App    │
 │  (Payments API +     │
 │   synthetic traffic) │
-└──────┬──────┬────────┘
-       │      │
-  OTLP │      │ OTLP
-       │      │
-       ▼      ▼
-┌──────────┐ ┌──────────────┐
-│ Victoria │ │  Victoria    │
-│ Metrics  │ │  Logs        │
-│ (:8428)  │ │ (:9428)      │
-└────┬─────┘ └──────┬───────┘
-     │               │
-     └───────┬───────┘
-             ▼
-       ┌──────────┐
-       │ Grafana  │
-       │ (:3000)  │
-       └──────────┘
+└──┬──────┬────────┬───┘
+   │      │        │
+   │ OTLP │ OTLP   │ OTLP
+   │      │        │
+   ▼      ▼        ▼
+┌──────┐ ┌──────┐ ┌──────────┐
+│  VM  │ │  VL  │ │   VT     │
+│Metrics│ │ Logs │ │ Traces   │
+│(:8428)│ │(:9428)│ │(:10428)  │
+└──┬───┘ └──┬───┘ └────┬─────┘
+   │        │          │
+   └────────┼──────────┘
+            ▼
+      ┌──────────┐
+      │ Grafana  │
+      │ (:3000)  │
+      └──────────┘
 ```
 
 ## Prerequisites
@@ -49,7 +50,7 @@ cd env
 docker compose up -d
 ```
 
-This starts VictoriaMetrics, VictoriaLogs, and Grafana with pre-provisioned datasources and dashboards.
+This starts VictoriaMetrics, VictoriaLogs, VictoriaTraces, and Grafana with pre-provisioned datasources and dashboards.
 
 ### 2. Run the Spring Boot application
 
@@ -64,13 +65,14 @@ The application starts on a random port and immediately begins generating synthe
 
 Navigate to [http://localhost:3000](http://localhost:3000) (login: `admin` / `admin`).
 
-The pre-configured **demo dashboard** includes:
+The pre-configured **Spring Boot Observability** dashboard includes:
 
-| Panel | Datasource | Description |
-|---|---|---|
-| Request Log | VictoriaLogs | Structured table of all API requests with tenant, method, URI, status, and latency |
-| p95 Latency | VictoriaMetrics | 95th percentile response time grouped by endpoint and status |
-| Error Rate | VictoriaMetrics | Rate of 4xx/5xx responses per endpoint |
+| Row | Panels | Datasource | Description |
+|---|---|---|---|
+| Overview | Request Rate, Error Rate %, p95 Latency, Total Requests (1h) | VictoriaMetrics | Key SRE stats at a glance |
+| RED Metrics | Request Rate, Error Rate, Latency (p50/p95/p99) | VictoriaMetrics | Rate, Errors, Duration timeseries per endpoint |
+| Traces | Recent Traces | VictoriaTraces | Distributed traces for the `demo` service |
+| Logs | Request Log | VictoriaLogs | Structured table of all API requests |
 
 ## How It Works
 
@@ -116,9 +118,30 @@ management:
 
 Logs are structured as key-value pairs (requestId, tenantId, method, URI, status, latency, request/response bodies) making them queryable in VictoriaLogs.
 
+### Traces pipeline
+
+Spring Boot auto-instruments HTTP server and client requests with OpenTelemetry and exports traces directly to VictoriaTraces:
+
+```
+App → OTLP HTTP → VictoriaTraces (http://localhost:10428/insert/opentelemetry/v1/traces)
+```
+
+Configured in `application.yaml`:
+
+```yaml
+management:
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:10428/insert/opentelemetry/v1/traces
+```
+
+The scheduled traffic generator makes real HTTP calls via `RestClient`, which automatically creates client→server trace spans.
+
 ### No collector needed
 
-Both VictoriaMetrics and VictoriaLogs natively support OpenTelemetry OTLP HTTP receivers, so the application exports telemetry **directly** — no OpenTelemetry Collector is required.
+VictoriaMetrics, VictoriaLogs, and VictoriaTraces all natively support OpenTelemetry OTLP HTTP receivers, so the application exports telemetry **directly** — no OpenTelemetry Collector is required.
 
 ## The Demo Application
 
@@ -150,7 +173,8 @@ A scheduled task calls these endpoints every 200ms with random tenant IDs and re
             ├── dashboards/dashboards.yml
             └── datasources/
                 ├── victorialogs.yml
-                └── victoriametrics.yml
+                ├── victoriametrics.yml
+                └── victoriatraces.yml
 ```
 
 ## Tech Stack
@@ -159,5 +183,6 @@ A scheduled task calls these endpoints every 200ms with random tenant IDs and re
 - **Kotlin** / Java 21
 - **VictoriaMetrics v1.134.0** — time-series database (Prometheus-compatible)
 - **VictoriaLogs v1.44.0** — log management solution
-- **Grafana 11.5.2** with `victoriametrics-logs-datasource` plugin
-- **OpenTelemetry** — OTLP protocol for both metrics and logs export
+- **VictoriaTraces** — distributed tracing backend (Jaeger-compatible)
+- **Grafana 11.5.2** with `victoriametrics-logs-datasource` and `victoriametrics-metrics-datasource` plugins
+- **OpenTelemetry** — OTLP protocol for metrics, logs, and traces export
