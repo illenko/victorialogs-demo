@@ -23,6 +23,17 @@ services:
     networks:
       - test-network
 
+  victoria-traces:
+    image: docker.io/victoriametrics/victoria-traces:latest
+    container_name: victoriatraces
+    ports:
+      - "10428:10428"
+    volumes:
+      - ./victoria-traces-data:/victoria-traces-data
+    restart: unless-stopped
+    networks:
+      - test-network
+
   grafana:
     image: grafana/grafana:11.5.2
     container_name: grafana

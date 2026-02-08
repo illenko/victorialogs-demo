@@ -15,6 +15,10 @@ management:
         url: http://localhost:8428/opentelemetry/v1/metrics
         step: 1s
   opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:10428/insert/opentelemetry/v1/traces
     logging:
       export:
         otlp:
