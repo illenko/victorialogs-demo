@@ -4,6 +4,6 @@ datasources:
   - name: VictoriaMetrics
     type: victoriametrics-metrics-datasource
     access: proxy
-    url: http://vm_single_node:8428
+    url: http://victoriametrics:8428
     uid: victoriametrics
     isDefault: false

@@ -515,12 +515,61 @@
         "uid": "victoriatraces"
       },
       "fieldConfig": {
-        "defaults": {},
-        "overrides": []
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "traceID" },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "View trace",
+                    "url": "",
+                    "internal": {
+                      "datasourceUid": "victoriatraces",
+                      "datasourceName": "VictoriaTraces",
+                      "query": {
+                        "query": "${__value.raw}",
+                        "queryType": "traceID"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "duration" },
+            "properties": [
+              { "id": "unit", "value": "dtdurationms" },
+              { "id": "custom.width", "value": 120 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "startTime" },
+            "properties": [
+              { "id": "unit", "value": "dateTimeFromNow" },
+              { "id": "custom.width", "value": 150 }
+            ]
+          }
+        ]
       },
       "gridPos": { "h": 12, "w": 24, "x": 0, "y": 17 },
       "id": 8,
-      "options": {},
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [
+          { "displayName": "startTime", "desc": true }
+        ]
+      },
       "pluginVersion": "11.5.2",
       "targets": [
         {
@@ -530,11 +579,26 @@
           },
           "queryType": "search",
           "refId": "A",
-          "service": "demo"
+          "service": "demo",
+          "tags": "origin=api"
         }
       ],
       "title": "Recent Traces",
-      "type": "traces"
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "spanSets": true },
+            "indexByName": {
+              "traceID": 0,
+              "traceName": 1,
+              "startTime": 2,
+              "duration": 3
+            }
+          }
+        }
+      ],
+      "type": "table"
     },
     {
       "collapsed": false,
@@ -648,7 +712,9 @@
   "schemaVersion": 40,
   "tags": ["spring-boot", "observability", "victoriametrics"],
   "templating": {
-    "list": []
+    "list": [
+
+    ]
   },
   "time": {
     "from": "now-15m",

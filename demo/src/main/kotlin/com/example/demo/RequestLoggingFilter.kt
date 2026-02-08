@@ -1,5 +1,6 @@
 package com.example.demo
 
+import io.opentelemetry.api.trace.Span
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -27,6 +28,8 @@ class RequestLoggingFilter : OncePerRequestFilter() {
         val cachedResponse = ContentCachingResponseWrapper(response)
         val requestId = request.getHeader("X-Request-Id") ?: UUID.randomUUID().toString()
         val tenantId = request.getHeader("X-Tenant-Id") ?: ""
+
+        Span.current().setAttribute("origin", "api")
 
         val start = System.currentTimeMillis()
         try {

@@ -16,7 +16,7 @@ services:
 
   victoria-metrics:
     image: victoriametrics/victoria-metrics:v1.134.0
-    container_name: vm_single_node
+    container_name: victoriametrics
     ports:
       - "8428:8428"
     volumes:
@@ -28,12 +28,14 @@ services:
       - test-network
 
   victoria-traces:
-    image: docker.io/victoriametrics/victoria-traces:latest
+    image: docker.io/victoriametrics/victoria-traces:v0.7.1
     container_name: victoriatraces
     ports:
       - "10428:10428"
     volumes:
       - ./victoria-traces-data:/victoria-traces-data
+    command:
+      - "-storageDataPath=victoria-traces-data"
     restart: unless-stopped
     networks:
       - test-network
